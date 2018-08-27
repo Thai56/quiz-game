@@ -41,6 +41,6 @@ func main() {
     }
   }
 
-  fmt.Println("Got ", counter, " wrong!")
+  fmt.Println("Got ", len(problems) - counter, "/", len(problems), " right!")
 }
 
