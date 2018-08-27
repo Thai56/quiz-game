@@ -16,9 +16,14 @@ import (
 func main() {
   csvPath := flag.String("csv", "problems.csv", "will be a string")
 
+  // TODO: Use the timer flag below to create a timer
+  timer := flag.Int("timer", 30, "timer quiz assessment")
+
   // TODO: Find a way to refactor below
 
   flag.Parse()
+
+  fmt.Println("timer ", *timer)
 
   pwd, _ := os.Getwd()
 
@@ -38,11 +43,11 @@ func main() {
 
   counter :=  0
 
-  for _, p := range problems {
+  for i, p := range problems {
     reader := bufio.NewReader(os.Stdin)
     problem, answer := p[0], p[1]
 
-    fmt.Print("What is ", problem, " Sir? \n")
+    fmt.Print(i + 1, ".) What is ", problem, " Sir? \n")
 
     text, _ := reader.ReadString('\n')
     userAnswer := strings.TrimSuffix(text, "\n")
@@ -52,7 +57,8 @@ func main() {
     }
   }
 
-  fmt.Println("Got ", len(problems) - counter, "/", len(problems), " right!")
+  correctCount := (len(problems) - counter);
+  fmt.Println("Got ", correctCount, "/", len(problems), " right!")
   /*
    *TODO: Part Two:Adapt your program from part 1 to add a timer. The default time limit should be 30 seconds, but should also be customizable via a flag.
 
