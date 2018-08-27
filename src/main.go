@@ -2,24 +2,35 @@
 package main
 
 import (
-	"encoding/csv"
+  "encoding/csv"
   "bufio"
 	"fmt"
-	"log"
+  "log"
   "os"
   "strings"
+  "flag"
   //"reflect"
+  "path/filepath"
 )
 
 func main() {
-  filePath := os.Args[1]
+  csvPath := flag.String("csv", "problems.csv", "will be a string")
 
-  csvFile, _ := os.Open(filePath)
+  // TODO: Find a way to refactor below
 
-  record := csv.NewReader(bufio.NewReader(csvFile))
+  flag.Parse()
 
+  pwd, _ := os.Getwd()
+
+  csvFile, _ := filepath.Abs(pwd + "/" + *csvPath)
+
+  fileContents, _ := os.Open(csvFile)
+
+  record := csv.NewReader(bufio.NewReader(fileContents))
 
   problems, err := record.ReadAll()
+
+  fmt.Println("problems ", problems)
 
   if err != nil {
     log.Fatal(err)
@@ -31,7 +42,7 @@ func main() {
     reader := bufio.NewReader(os.Stdin)
     problem, answer := p[0], p[1]
 
-    fmt.Print("What is", problem, " Sir? \n")
+    fmt.Print("What is ", problem, " Sir? \n")
 
     text, _ := reader.ReadString('\n')
     userAnswer := strings.TrimSuffix(text, "\n")
@@ -42,5 +53,14 @@ func main() {
   }
 
   fmt.Println("Got ", len(problems) - counter, "/", len(problems), " right!")
+  /*
+   *TODO: Part Two:Adapt your program from part 1 to add a timer. The default time limit should be 30 seconds, but should also be customizable via a flag.
+
+   Your quiz should stop as soon as the time limit has exceeded. That is, you shouldn’t wait for the user to answer one final questions but should ideally stop the quiz entirely even if you are currently waiting on an answer from the end user.
+
+
+   */
+
+
 }
 
