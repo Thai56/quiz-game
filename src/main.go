@@ -61,8 +61,56 @@ func startQuizGame(problems []Problem, quizDone chan bool, correctCount *int) {
   close(quizDone)
 }
 
+func askUserQuestion(question string, proceed chan bool, decline chan bool) {
+  fmt.Println(question)
+  reader := bufio.NewReader(os.Stdin)
+
+  char, _, err := reader.ReadRune()
+
+  if err != nil {
+    fmt.Println(err)
+  }
+
+  var message string
+
+  for {
+    switch char {
+      case 10:
+        message = ""
+        proceed <- true
+        break
+      case 121:
+        message = "Glad to have you with us! \n \n Let's Begin!!!...."
+        proceed <- true
+        break
+      case 110:
+        message = "Ok maybe next time!... \n \n Cya around!!..."
+        decline <-false
+        break
+      default:
+      message = "Please select a valid answer"
+      askUserQuestion(question, proceed, decline)
+    }
+
+    fmt.Println(message)
+  }
+}
+
 func main() {
   timerFlag := flag.Int("timer", 15, "timer quiz assessment")
+
+  // User Permission
+  proceed := make(chan bool)
+  decline := make(chan bool)
+
+  go askUserQuestion("Press Enter once you are ready start the quiz!...", proceed, decline)
+
+  select {
+  case <-proceed:
+    break
+  case <-decline:
+    return
+  }
 
   // Gathering Problems
   var problems []Problem
@@ -79,8 +127,6 @@ func main() {
   correctCount := 0
   go startQuizGame(problems, quizOver, &correctCount)
 
-  fmt.Println("quiz starting...")
-
   for {
     select {
     case <-timer1.C:
@@ -88,7 +134,7 @@ func main() {
       fmt.Println("Got ", correctCount, "/", len(problems), " right!")
       return
     case <-quizOver:
-      fmt.Println("Congradulations! You finished the quiz within the set time!...")
+      fmt.Println("Congratulations! You finished the quiz within the set time!...")
       fmt.Println("Got ", correctCount, "/", len(problems), " right!")
       return
     }
